@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>A Question For You </title>
+<style>
+  body {
+    margin:0; font-family:Arial, sans-serif; overflow:hidden; background:#ffe6e6;
+  }
+
+  /* Pages */
+  .page {
+    position:absolute; top:0; left:0; width:100%; height:100%;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    text-align:center; padding:20px; box-sizing:border-box;
+    opacity:0; transition: opacity 1s ease; pointer-events:none;
+  }
+  .page.active { opacity:1; pointer-events:auto; }
+
+  #landing { background: linear-gradient(135deg, #ff6b6b, #ff9a9e); }
+  #intermediate { background: linear-gradient(135deg,#6a11cb,#2575fc); }
+  #main { background: linear-gradient(135deg,#ff6b6b,#ff9a9e); }
+
+  p {
+    color:white; font-size:2em; margin:15px 0; opacity:0; transition:opacity 1s;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* Full-width Next buttons */
+  .nextBtn {
+    display:none; margin-top:40px; font-size:1.5em; padding:20px 0;
+    width:100%; max-width:400px; border:none; border-radius:20px;
+    background:#ff4757; color:white; cursor:pointer; box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    transition:all 0.3s;
+    position:relative; z-index:2;
+  }
+  .nextBtn:hover { transform:scale(1.05); box-shadow:0 8px 20px rgba(0,0,0,0.5); }
+
+  /* Main page */
+  h1.main-title { color:white; font-size:3em; margin-top:50px; text-shadow:2px 2px 8px rgba(0,0,0,0.5); }
+  button.mainBtn { font-size:1.5em; padding:15px 40px; border:none; border-radius:12px; font-weight:bold; cursor:pointer; box-shadow:0 5px 15px rgba(0,0,0,0.3); transition:all 0.3s ease; position:absolute; z-index:2; }
+  #yesBtn { background:#ff4757; color:white; left:35%; bottom:20%; }
+  #noBtn { background:#57606f; color:white; left:55%; bottom:20%; }
+  button.mainBtn:hover { transform:scale(1.1); box-shadow:0 8px 20px rgba(0,0,0,0.5); }
+
+  /* Warning */
+  #warning { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); color:white; display:flex; flex-direction:column; justify-content:center; align-items:center; text-align:center; z-index:9999; display:none; padding:20px; }
+  #warning p { order:-1; margin-bottom:20px; font-size:2em; }
+  #warning img { max-width:300px; margin:20px 0; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.5); }
+  #warning button { background:#ff4757; color:white; border-radius:10px; padding:10px 30px; font-size:1.2em; cursor:pointer; margin-top:20px; }
+
+  /* Celebration layer */
+  #celebration {
+    position:fixed;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%) scale(0);
+    color:#fffb00;
+    font-size:3em;
+    text-align:center;
+    z-index:10000;
+    display:none;
+    background: rgba(0,0,0,0.7);
+    padding: 30px 50px;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.8);
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    transition: transform 0.8s ease, opacity 0.8s ease;
+  }
+  #celebration.show {
+    display:flex;
+    transform:translate(-50%,-50%) scale(1);
+  }
+
+  /* Floating hearts/confetti */
+  .confetti {
+    position:absolute; width:15px; height:15px; border-radius:50%;
+    background:red; animation:fall linear infinite;
+    opacity:0.8;
+  }
+  @keyframes fall {
+    0% {transform:translateY(0) rotate(0deg);}
+    100% {transform:translateY(100vh) rotate(360deg);}
+  }
+
+  /* Mute button */
+  #muteBtn {
+    position:fixed; top:10px; right:10px; z-index:10001;
+    padding:10px 15px; border:none; border-radius:8px; cursor:pointer;
+    font-size:1.2em; background:#ff6b6b; color:white;
+    box-shadow:0 3px 10px rgba(0,0,0,0.3);
+  }
+
+  /* Music overlay */
+  #musicOverlay {
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(0,0,0,0.9); color:white; display:flex;
+    justify-content:center; align-items:center; z-index:10002;
+    text-align:center; cursor:pointer; font-size:2em; padding:20px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Background music -->
+<audio id="bgMusic" src="Outside (sped up) - Marlii.mp3" loop></audio>
+
+<!-- NO hover sound -->
+<audio id="noAudio" src="no-sound.mp3"></audio>
+
+<!-- NO drum sound -->
+<audio id="drumAudio" src="drum.mp3"></audio>
+
+<!-- Music overlay -->
+<div id="musicOverlay">🎵 Tap anywhere to start the music 🎵</div>
+
+<!-- Landing -->
+<div id="landing" class="page">
+  <p>Hey… I have something to tell you</p>
+  <p>I really think you are ugly  </p>
+  <p>but it is okay you are just a fish after all :)</p>
+  <p>SUKA! I want to tell you smth follow me SUKA </p>
+  <button id="nextBtn" class="nextBtn">Next</button>
+</div>
+
+<!-- Intermediate -->
+<div id="intermediate" class="page">
+  <p>Наша встреча сначала была странной.
+Вначале я не знал, ты мужчина или женщина.
+Но потом оказалось, что ты глупая рыбка  😄</p>
+  <p>Когда я начал с тобой разговаривать,
+я почувствовал радость
+и понял, что могу говорить с тобой обо всём, о чём захочу.</p>
+  <p>Мы разделяем одно и то же странное, извращённое чувство юмора.
+После всего этого мне стало всё равно,
+мужчина ты или женщина,
+потому что я знал, что ты мой друг.</p>
+  <p>И я надеюсь, что ты чувствуешь то же самое со мной.
+
+Кажется, я слишком много болтаю.
+То, что я хочу сказать на самом деле:
+ты мне нравишься.</p>
+<p>Можешь ответить на следующий вопрос?</p>
+  <button id="intermediateNext" class="nextBtn">Next</button>
+</div>
+
+<!-- Main Valentine -->
+<div id="main" class="page">
+  <h1 class="main-title">Will you be my Valentine for now and untill we grow old together ?</h1>
+  <button id="yesBtn" class="mainBtn">Yes</button>
+  <button id="noBtn" class="mainBtn">No</button>
+
+  <!-- Fullscreen warning -->
+  <div id="warning">
+    <p id="warningText">Hey! Stop pressing NO! 😏</p>
+    <img id="warningImg" src="https://m.media-amazon.com/images/I/516A+qh4WxL._AC_UF1000,1000_QL80_.jpg">
+    <button id="closeWarning">Close</button>
+  </div>
+</div>
+
+<!-- Celebration -->
+<div id="celebration">SUKA! but you are my Suka Happy Valentine's day 💘</div>
+
+<!-- Mute/Unmute Button -->
+<button id="muteBtn">🔊</button>
+
+<!-- YES celebration sound -->
+<audio id="yesAudio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"></audio>
+
+<script>
+const overlay = document.getElementById("musicOverlay");
+const landing = document.getElementById("landing");
+const nextBtn = document.getElementById("nextBtn");
+const intermediate = document.getElementById("intermediate");
+const intermediateNext = document.getElementById("intermediateNext");
+const main = document.getElementById("main");
+const yesBtn = document.getElementById("yesBtn");
+const noBtn = document.getElementById("noBtn");
+const warning = document.getElementById("warning");
+const warningText = document.getElementById("warningText");
+const closeWarning = document.getElementById("closeWarning");
+const celebration = document.getElementById("celebration");
+const yesAudio = document.getElementById("yesAudio");
+const muteBtn = document.getElementById("muteBtn");
+const bgMusic = document.getElementById("bgMusic");
+const noAudio = document.getElementById("noAudio");
+const drumAudio = document.getElementById("drumAudio");
+
+let noCounter = 0;
+const width = window.innerWidth;
+const height = window.innerHeight;
+
+// Overlay click to start music
+overlay.addEventListener('click', ()=>{
+  bgMusic.volume = 0.3;
+  bgMusic.play();
+  overlay.style.display='none';
+  landing.classList.add('active');
+  landing.querySelectorAll("p").forEach((p,i)=>{ setTimeout(()=>{ p.style.opacity=1 }, i*1000); });
+  setTimeout(()=>{ nextBtn.style.display='inline-block'; },500);
+});
+
+// Landing Next
+nextBtn.addEventListener("click", ()=>{
+  landing.classList.remove('active');
+  intermediate.classList.add('active');
+  intermediate.querySelectorAll("p").forEach((p,i)=>{ setTimeout(()=>{ p.style.opacity=1 }, i*1000); });
+  setTimeout(()=>{ intermediateNext.style.display='inline-block'; },500);
+});
+
+// Intermediate Next
+intermediateNext.addEventListener("click", ()=>{
+  intermediate.classList.remove('active');
+  main.classList.add('active');
+});
+
+// NO hover logic
+function animateNoButton(){
+  // multiple random moves + shake
+  for(let i=0;i<3;i++){
+    setTimeout(()=>{
+      const dx=Math.random()*100-50;
+      const dy=Math.random()*100-50;
+      const angle=Math.random()*360;
+      noBtn.style.transform=`translate(${dx}px, ${dy}px) rotate(${angle}deg)`;
+    }, i*100);
+  }
+}
+
+noBtn.addEventListener("mouseenter", ()=>{
+  animateNoButton();
+  noCounter++;
+
+  // Play NO sound + drum
+  noAudio.currentTime = 0;
+  noAudio.play();
+  drumAudio.currentTime = 0;
+  drumAudio.play();
+
+  if(noCounter===2){
+    warningText.innerText="Hey! Stop pressing NO! 😏";
+    warning.style.display="flex";
+  } else if(noCounter===4){
+    warningText.innerText="Seriously? You can’t escape SUKA!";
+    warning.style.display="flex";
+  } else if(noCounter>=6){
+    warningText.innerText="Keep trying… you won't win! 😎";
+    warning.style.display="flex";
+  }
+});
+
+// Warning close
+closeWarning.addEventListener("click", ()=>{ warning.style.display="none"; });
+
+// YES Click
+yesBtn.addEventListener("click", ()=>{
+  celebration.classList.add("show");
+  yesAudio.currentTime = 0;
+  yesAudio.play();
+  for(let i=0;i<30;i++){
+    const c=document.createElement("div");
+    c.classList.add("confetti");
+    c.style.left=Math.random()*100+"%";
+    c.style.background=["#ff0000","#fffb00","#ff69b4","#00ffff"][Math.floor(Math.random()*4)];
+    c.style.animationDuration=(2+Math.random()*3)+"s";
+    document.body.appendChild(c);
+    setTimeout(()=>c.remove(),5000);
+  }
+});
+
+// Mute/Unmute
+muteBtn.addEventListener("click", ()=>{
+  if(bgMusic.paused){ bgMusic.play(); muteBtn.textContent="🔊"; }
+  else { bgMusic.pause(); muteBtn.textContent="🔇"; }
+});
+</script>
+</body>
+</html>
